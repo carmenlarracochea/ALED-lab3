@@ -2,6 +2,7 @@ package es.upm.dit.aled.lab3.binary;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 import es.upm.dit.aled.lab3.FASTAReader;
@@ -82,30 +83,65 @@ public class FASTAReaderSuffixes extends FASTAReader {
 		List<Integer> resultado = new ArrayList<>();
 		
 		int lo = 0;
-		int hi = suffixes.length - 1;
+		int hi = this.suffixes.length - 1;
 				
 		while (lo <= hi) {
 			
 			int m = lo + (hi - lo)/2;
-			Suffix posSuffix = suffixes[m];
+			int posSuffix = suffixes[m].suffixIndex;
 			boolean found = true;
-			int i = 0;
-			for (; i < pattern.length; i++) {
-				if (pattern[i] != content[posSuffix.suffixIndex + i]) {
+			int i;
+			for (i = 0; i < pattern.length; i++) {
+				if (pattern[i] != content[posSuffix + i]) {
 					found = false;
 					break;	
 				} 
 			} 
 			
 			if(found) {
-				resultado.add(posSuffix.suffixIndex);
-				break;
-				
-			} else if (pattern[i] < content[posSuffix.suffixIndex + i]) {
-					hi = m -1;
-			} else {
-					lo = m + 1;
+				resultado.add(posSuffix);
+							
+				int k = m -1;
+				while(k>=0) {
+					int pIndex = suffixes[k].suffixIndex;
+					boolean match = true;
+					for (int j = 0; j < pattern.length; j++) {
+						if(pattern[j] != content[pIndex + j]) {
+						match = false;
+						break;
+						}		
+					} if (match) {
+						resultado.add(pIndex);
+						k--;
+					} else {
+						break;
+					}
 				}
+				
+				k = m + 1;
+				while(k<this.suffixes.length) {
+					int pIndex = suffixes[k].suffixIndex;
+					boolean match = true;
+					for (int j = 0; j < pattern.length; j++) {
+						if(pattern[j] != content[pIndex + j]) {
+						match = false;
+						break;
+						}		
+					} if (match) {
+						resultado.add(pIndex);
+						k++;
+					} else {
+						break;
+					}
+				} return resultado; 
+				
+			}	
+			
+			if (pattern[i] < content[posSuffix + i]) {
+					hi = m -1;
+			} else if (pattern[i] > content[posSuffix + i]) {
+					lo = m + 1;
+			}
 				
 			}
 		return resultado;
